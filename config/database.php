@@ -1,5 +1,5 @@
 <?php
-namespace app\config;
+
 class Database{
     private static $_connection = false;
     private static $host = "training-db";

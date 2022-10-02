@@ -1,72 +1,77 @@
 <?php
 
-declare(strict_types=1);
-
-namespace app\api\routes;
-
-use app\api\routes\Exception\RouteNotFound;
-use Psr\Http\Message\ServerRequestInterface;
-
-final class Router implements RouterInterface
+class Router
 {
-    private const NO_ROUTE = 404;
+    private $request;
+    private $supportedHttpMethods = array(
+        "GET",
+        "POST",
+    );
 
-    /**
-     * @var \ArrayObject<Route>
-     */
-    private $routes;
-
-    /**
-     * @var UrlGenerator
-     */
-    private $urlGenerator;
-
-    /**
-     * Router constructor.
-     * @param $routes array<Route>
-     */
-    public function __construct(array $routes = [])
+    function __construct(IRequest $request)
     {
-        $this->routes = new \ArrayObject();
-        $this->urlGenerator = new UrlGenerator($this->routes);
-        foreach ($routes as $route) {
-            $this->add($route);
-        }
+        $this->request = $request;
     }
 
-    public function add(Route $route): self
+    function __call($name, $args)
     {
-        $this->routes->offsetSet($route->getName(), $route);
-        return $this;
-    }
+        list($route, $method) = $args;
 
-    public function match(ServerRequestInterface $serverRequest): Route
-    {
-        return $this->matchFromPath($serverRequest->getUri()->getPath(), $serverRequest->getMethod());
-    }
-
-    public function matchFromPath(string $path, string $method): Route
-    {
-        foreach ($this->routes as $route) {
-            if ($route->match($path, $method) === false) {
-                continue;
-            }
-            return $route;
+        if(!in_array(strtoupper($name), $this->supportedHttpMethods))
+        {
+            $this->invalidMethodHandler();
         }
 
-        throw new RouteNotFound(
-            'No route found for ' . $method,
-            self::NO_ROUTE
-        );
+        $this->{strtolower($name)}[$this->formatRoute($route)] = $method;
     }
 
-    public function generateUri(string $name, array $parameters = []): string
+    /**
+     * Removes trailing forward slashes from the right of the route.
+     * @param route (string)
+     */
+    private function formatRoute($route)
     {
-        return $this->urlGenerator->generate($name, $parameters);
+        $result = rtrim($route, '/');
+        if ($result === '')
+        {
+            return '/';
+        }
+        return $result;
     }
 
-    public function getUrlGenerator(): UrlGenerator
+    private function invalidMethodHandler()
     {
-        return $this->urlGenerator;
+        header("{$this->request->serverProtocol} 405 Method Not Allowed");
     }
+
+    private function defaultRequestHandler()
+    {
+        header("{$this->request->serverProtocol} 404 Not Found");
+    }
+
+    /**
+     * Resolves a route
+     */
+    function resolve()
+    {
+        $methodDictionary = $this->{strtolower($this->request->requestMethod)};
+        $formatedRoute = $this->formatRoute($this->request->requestUri);
+        $method = $methodDictionary[$formatedRoute];
+
+        if(is_null($method))
+        {
+            $this->defaultRequestHandler();
+            return;
+        }
+
+        echo call_user_func_array($method, array($this->request));
+    }
+
+    function __destruct()
+    {
+        $this->resolve();
+    }
+
+
+
 }
