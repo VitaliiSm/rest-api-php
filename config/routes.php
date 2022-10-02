@@ -1,8 +1,6 @@
 <?php
 include_once 'controllers/UserController.php';
 include_once 'controllers/TodoController.php';
-include_once 'config/database.php';
-include_once 'routes/Request.php';
 include_once 'routes/Router.php';
 $router = new Router(new Request);
 //Todo
