@@ -78,7 +78,7 @@ class TodoController
         || !isset($_PUT['important'])
         || empty($_PUT['category_id'])
         || empty(trim($_PUT['description'])
-            || empty($_PUT['important']))) {
+        || empty($_PUT['important']))) {
         $fields = ['fields' => ['category_id', 'description', 'important']];
         return json_encode(self::msg(0, 422, 'Please Fill in all Required Fields!', $fields));
     } else {

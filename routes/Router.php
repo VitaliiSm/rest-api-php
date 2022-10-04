@@ -1,5 +1,4 @@
 <?php
-
 class Router
 {
     private $request;
@@ -32,6 +31,7 @@ class Router
     private function formatRoute($route)
     {
         $result = rtrim($route, '/');
+
         if ($result === '')
         {
             return '/';
@@ -46,7 +46,7 @@ class Router
 
     private function defaultRequestHandler()
     {
-        header("{$this->request->serverProtocol} 404 Not Found");
+       header("{$this->request->serverProtocol} 404 Not Found");
     }
 
     /**

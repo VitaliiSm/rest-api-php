@@ -1,0 +1,12 @@
+{
+  "require": {
+    "pecee/simple-router": "*",
+    "lcobucci/jwt": "*",
+    "ext-json": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "app\\": "/"
+    }
+  }
+}

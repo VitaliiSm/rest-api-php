@@ -1,6 +1,5 @@
 <?php
 include_once 'routes/IRequest.php';
-
 class Request implements IRequest
 {
     function __construct()
