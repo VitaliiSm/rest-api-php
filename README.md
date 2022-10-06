@@ -49,6 +49,7 @@ update todo
     description: string,
     important: integer
 }
+
 change status
 /api/todo PATCH
 {
