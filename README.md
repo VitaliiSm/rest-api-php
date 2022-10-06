@@ -41,3 +41,16 @@ delete todo
 {
     id:integer
 }
+
+update todo
+/api/todo PUT
+{
+    category_id: integer,
+    description: string,
+    important: integer
+}
+change status
+/api/todo PATCH
+{
+    status: integer
+}
